@@ -7,5 +7,5 @@ import java.util.List;
 
 @RepositoryRestResource
 public interface ShipRepository extends JpaRepository<Ship,Long> {
-    List<Ship> findByLocation (String location);
+    List<Ship> findByLocations (String locations);
 }

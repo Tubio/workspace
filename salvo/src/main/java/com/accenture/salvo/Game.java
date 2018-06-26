@@ -3,10 +3,7 @@ package com.accenture.salvo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import javax.persistence.*;
@@ -22,9 +19,11 @@ public class Game {
     private Date creationDate;
 
     @OneToMany(mappedBy = "game",fetch = FetchType.EAGER)
-    Set<GamePlayer> gamePlayers;
+    private Set<GamePlayer> gamePlayers;
 
     public Game() {
+
+        gamePlayers = new HashSet<>();
         creationDate = new Date();
     }
 

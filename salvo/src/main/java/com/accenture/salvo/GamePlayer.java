@@ -2,6 +2,8 @@ package com.accenture.salvo;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class GamePlayer {
@@ -18,8 +20,13 @@ public class GamePlayer {
     @JoinColumn(name="game_id")
     private Game game;
 
+    @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
+    private Set<Ship> ships;
+
     //constructor
     public GamePlayer() {
+
+        ships = new HashSet<>();
         creationDate = new Date();
     }
 
@@ -33,9 +40,12 @@ public class GamePlayer {
     public Player getPlayer(){ return player; }
     public Game getGame() { return game;}
     public Date getCreationDate() { return creationDate; }
+    public Set<Ship> getShips() {return ships; }
 
     //setters
     public void setPlayer(Player player) { this.player = player; }
     public void setGame(Game game) { this.game = game; }
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }
+
+    public void addShip (Ship newShip) {ships.add(newShip); }
 }

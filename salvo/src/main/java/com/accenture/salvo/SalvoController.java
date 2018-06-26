@@ -2,10 +2,7 @@ package com.accenture.salvo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +14,9 @@ import static java.util.stream.Collectors.toSet;
 public class SalvoController {
 
     @Autowired
-    GameRepository gameRepository;
+    private GameRepository gameRepository;
+    @Autowired
+    private GamePlayerRepository gamePlayerRepository;
 
     @RequestMapping("/games")
     public List<Object> getAll() {
@@ -26,7 +25,24 @@ public class SalvoController {
                 gameRepository.findAll().stream().map(game -> makeGameDTO(game))
                         .collect(Collectors.toList());
     }
-    
+
+    //returns info about the gamePlayer Id requested
+    @RequestMapping( value = "/game_view/{gamePlayerId}" , method = RequestMethod.GET)
+    public Map<String,Object> getGamePlayerInfo(@PathVariable long gamePlayerId){
+
+        Map<String,Object> gameInfo = new HashMap<>();
+        GamePlayer requested = gamePlayerRepository.getOne(gamePlayerId);
+
+        gameInfo.put("id",requested.getGame().getId());
+        gameInfo.put("created",requested.getGame().getCreationDate());
+        gameInfo.put("gamePlayers",requested.getGame().getGamePlayers().stream().map( gp -> makeGamePlayerDTO(gp))
+                                                                                    .collect(toSet()));
+        gameInfo.put("ships",requested.getShips().stream().map( ship -> makeShipDTO(ship)).collect(toSet()));
+
+        return gameInfo;
+    }
+
+    /////////////////
     //private methods
     private Map<String,Object> makeGameDTO(Game game) {
 
@@ -55,4 +71,14 @@ public class SalvoController {
 
         return playerMap;
     }
+
+    private Map<String,Object> makeShipDTO(Ship ship){
+
+        Map<String,Object> shipMap = new HashMap<>();
+        shipMap.put("type",ship.getType());
+        shipMap.put("locations",ship.getLocations());
+
+        return shipMap;
+    }
+
 }
