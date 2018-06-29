@@ -38,8 +38,17 @@ body{
 }
 .game-list {
 
+    height: 400px;
+    overflow:hidden;
+    overflow-y:scroll;
     opacity: 0.9;
     filter: alpha(opacity=50);
-    background-color: #95C8D8;
+}
+
+.list-group-item {
+    font-size: 12px;
+    font-color: #95C8D8;
+    height: 60px;
+    background-color: white;
 }
 
