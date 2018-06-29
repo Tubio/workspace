@@ -1,0 +1,45 @@
+h1 {
+    background: white;
+    color: black;
+    border-color: black;
+}
+
+tr:nth-child(even) {
+    opacity: 0.9;
+    filter: alpha(opacity=50);
+    background-color: #95C8D8;
+}
+
+tr:nth-child(odd) {
+    opacity: 0.9;
+    filter: alpha(opacity=50);
+    background-color: white;
+}
+
+table {
+    height: 220px;
+    overflow-y: scroll;
+    border: 2px solid black;
+}
+.table-font {
+    font-size = 2px;
+}
+td {
+    font-size: 15px;
+    font-weight: bold;
+    font-family: "Arial Black", Gadget, sans-serif !important;
+}
+body{
+   background: url(fondo2.jpg) no-repeat center center fixed;
+   -webkit-background-size: cover;
+   -moz-background-size: cover;
+   -o-background-size: cover;
+   background-size: cover;
+}
+.game-list {
+
+    opacity: 0.9;
+    filter: alpha(opacity=50);
+    background-color: #95C8D8;
+}
+

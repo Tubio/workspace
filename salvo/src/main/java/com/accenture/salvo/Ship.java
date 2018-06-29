@@ -1,9 +1,9 @@
 package com.accenture.salvo;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.stream.Collector;
 
 @Entity
 public class Ship {
@@ -36,6 +36,11 @@ public class Ship {
     public void setGamePlayer (GamePlayer gamePlayer) { this.gamePlayer = gamePlayer; }
     public void setLocations (List<String> locations) { this.locations = locations; }
     public void addLocation (String newLocation) { this.locations.add(newLocation); }
+    //gets an array of locations and adds them to the bottom of the list
+    public void addLocations (String[] locationArray) {
+        List<String> newListObject = Arrays.asList(locationArray);
+        locations.addAll(newListObject);
+    }
     public void setType (String type) { this.type = type; }
 }
 
