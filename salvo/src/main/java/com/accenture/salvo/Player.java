@@ -1,6 +1,7 @@
 package com.accenture.salvo;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -14,6 +15,9 @@ public class Player {
     @GeneratedValue(strategy=GenerationType.AUTO)
     private long id;
     private String userName;
+
+    @Ignore
+    private String password;
 
     @OneToMany(mappedBy = "player",fetch = FetchType.EAGER)
     Set<GamePlayer> gamePlayers;
@@ -37,9 +41,12 @@ public class Player {
     //getters
 
     public long getId() { return id; }
+
     public String getEmail() {
         return userName;
     }
+
+    public String getPassword() { return password; }
 
     @JsonIgnore
     public Set<Game> getGames() { return gamePlayers.stream().map(sub ->
@@ -55,8 +62,10 @@ public class Player {
                score -> score.getId() == game.getId() ).findFirst().orElse(null);
     }
 
-    //setter
+    //setters
     public void setEmail(String userName) { this.userName = userName; }
+
+    public void setPassword(String password) {this.password = password; }
 
     //connects the game with the player
     public void addGamePlayer(GamePlayer gamePlayer) {

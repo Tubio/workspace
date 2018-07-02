@@ -1,9 +1,14 @@
 package com.accenture.salvo;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configurers.GlobalAuthenticationConfigurerAdapter;
 
 import java.util.*;
 
@@ -60,6 +65,13 @@ public class SalvoApplication {
 		Player player3 = new Player("kim_bauer@gmail.com");
 		Player player4 = new Player("t.almeida@ctu.gov");
 		Player playerX = new Player("N/A");
+
+		//adding passwords to players
+		player1.setPassword("24");
+		player2.setPassword("42");
+		player3.setPassword("kb");
+		player4.setPassword("mole");
+		playerX.setPassword("");
 
 		playerList.add(player1);
 		playerList.add(player2);
@@ -428,5 +440,22 @@ public class SalvoApplication {
 
 
 	}
-
 }
+
+@Configuration
+class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
+
+	@Autowired
+	PlayerRepository playerRepository;
+
+	@Override
+	public void init(AuthenticationManagerBuilder auth) throws Exception {
+		auth.userDetailsService(inputUserName -> {
+			Player player = playerRepository.findByUserName(inputUserName);
+			if(player != null) {
+				
+			}
+		})
+	}
+}
+
