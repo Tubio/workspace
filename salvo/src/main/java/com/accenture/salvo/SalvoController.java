@@ -1,8 +1,15 @@
 package com.accenture.salvo;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Null;
+import java.net.URI;
 import java.util.*;
 import static java.util.stream.Collectors.toSet;
 
@@ -18,10 +25,15 @@ public class SalvoController {
     private PlayerRepository playerRepository;
 
     @RequestMapping("/games")
-    public Map<String,Object> getAll() {
+    public Map<String,Object> getAll(Authentication authentication) {
 
         Map<String,Object> gameMap = new LinkedHashMap<>();
-        gameMap.put("player","Guest");
+
+        if ( isGuest(authentication) )
+            gameMap.put("player","Guest");
+        else
+            gameMap.put("player",makePlayerDTO(playerRepository.findByUserName(authentication.getName())));
+
         gameMap.put("games",gameRepository.findAll().stream().map(this::makeGameDTO).collect(toSet()));
 
         return gameMap;
@@ -39,6 +51,29 @@ public class SalvoController {
 
         List<Player> playerList = playerRepository.findAll();
         return playerList.stream().map( player -> makeLeaderboardDTO(player)).collect(toSet());
+    }
+
+    @RequestMapping( path = "/players", method = RequestMethod.POST)
+    public ResponseEntity<Map<String,Object>> createPlayer(@RequestParam String username,@RequestParam String password) {
+
+        ResponseEntity<Map<String,Object>> responseEntity;
+
+        if (username.isEmpty()){ //checks empty
+            responseEntity = new ResponseEntity<>(
+                    makeResponseMap("error","No name"), HttpStatus.FORBIDDEN);
+        }
+        else { //checks repeated
+            Player player = playerRepository.findByUserName(username);
+            if (player != null) {
+                responseEntity = new ResponseEntity<>(
+                        makeResponseMap("error","Name in use"), HttpStatus.FORBIDDEN);
+            } else { //saves the new player
+                playerRepository.save(new Player(username, password));
+                responseEntity = new ResponseEntity<>(
+                        makeResponseMap("userName",username), HttpStatus.CREATED);
+            }
+        }
+        return responseEntity;
     }
 
     /////////////////
@@ -64,7 +99,7 @@ public class SalvoController {
         Map<String, Object> map = new LinkedHashMap<>();
 
         map.put("id", game.getId());
-        map.put("creationDate", game.getCreationDate());
+        map.put("created", game.getCreationDate());
         map.put("gamePlayers", game.getGamePlayers().stream().map(gp -> makeGamePlayerDTO(gp)).collect(toSet()));
         map.put("scores",game.getScores().stream().map( score -> makeScoreDTO(score )).collect(toSet()));
         return map;
@@ -148,5 +183,17 @@ public class SalvoController {
         return leaderboardDTO;
     }
 
-//    Map<String,Object> generateSalvoMap()
+    //Private Security methods
+
+    private boolean isGuest(Authentication authentication) {
+        return authentication == null || authentication instanceof AnonymousAuthenticationToken;
+    }
+
+    private Map<String,Object> makeResponseMap (String key, Object value){
+
+        Map<String,Object> responseMap = new HashMap<>();
+        responseMap.put(key,value);
+
+        return responseMap;
+    }
 }

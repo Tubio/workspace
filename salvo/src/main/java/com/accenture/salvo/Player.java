@@ -34,8 +34,16 @@ public class Player {
     public Player(String userName) {
 
         this.userName = userName;
-        gamePlayers = new HashSet<>();
-        scores = new HashSet<>();
+        this.gamePlayers = new HashSet<>();
+        this.scores = new HashSet<>();
+    }
+
+    public Player(String userName, String password) {
+
+        this.userName = userName;
+        this.password = password;
+        this.gamePlayers = new HashSet<>();
+        this.scores = new HashSet<>();
     }
 
     //getters
