@@ -17,12 +17,12 @@ $('#login-form').on('submit', function (event) {
 
     if (submitButton == "login") {
         $.post("/api/login",
-            { name: $("#username").val(),
-                pwd: $("#password").val() })
+            { username: $("#username").val(),
+              password: $("#password").val() })
             .done(function() {
                 console.log("login ok");
                 $('#loginSuccess').show( "slow" ).delay(2000).hide( "slow" );
-                // $("#username").val("");
+                $("#username").val("");
                 $("#password").val("");
                 updateJson();
 
@@ -41,15 +41,15 @@ $('#login-form').on('submit', function (event) {
 
     } else if (submitButton == "signup") {
         $.post("/api/players",
-            { email: $("#username").val(),
+            { username: $("#username").val(),
                 password: $("#password").val() })
             .done(function(data) {
                 console.log("signup ok");
                 console.log(data);
                 $('#signupSuccess').show( "slow" ).delay(2000).hide( "slow" );
                 $.post("/api/login",
-                    { name: $("#username").val(),
-                        pwd: $("#password").val() })
+                    { username: $("#username").val(),
+                        password: $("#password").val() })
                     .done(function() {
                         console.log("login ok");
                         $('#loginSuccess').show( "slow" ).delay(2500).hide( "slow" );
@@ -64,7 +64,7 @@ $('#login-form').on('submit', function (event) {
                         $("#username").val("");
                         $("#password").val("");
                         $("#username").focus();
-                        // $('#loginFailed').hide( "slow" );
+                        $('#loginFailed').hide( "slow" );
                     })
                     .always(function() {
 
@@ -72,7 +72,7 @@ $('#login-form').on('submit', function (event) {
             })
             .fail(function(data) {
                 console.log("signup failed");
-                // console.log(data);
+                console.log(data);
                 $("#username").val("");
                 $("#password").val("");
                 $("#username").focus();
@@ -174,7 +174,7 @@ function updateView() {
 }
 
 function showGamesTable(gamesData) {
-        // let mytable = $('<table></table>').attr({id: "gamesTable", class: ""});
+        let mytable = $('<table></table>').attr({id: "gamesTable", class: ""});
         let table = "#gamesList tbody";
         let gpid;
         $(table).empty();
@@ -328,11 +328,3 @@ function showScoreBoard(playersArray) {
             }
         }
     }
-
-
-
-
-
-
-
-

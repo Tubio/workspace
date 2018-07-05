@@ -488,7 +488,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 					.passwordParameter("password")
 					.loginPage("/api/login");
 
-			http.logout().logoutUrl("api/logout");
+			http.logout().logoutUrl("/api/logout");
 
 			// turn off checking for CSRF tokens
 			http.csrf().disable();
