@@ -47,6 +47,18 @@ public class Game {
     //setter
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }
 
+    //checks if the player exists on the game
+    public Boolean hasPlayer ( String name ) {
+
+        Boolean hasPlayer = false;
+
+        if ( getPlayers().stream().filter(player -> player.getEmail().equals(name)).count() == 1 ) {
+            hasPlayer = true;
+        }
+
+        return hasPlayer;
+    }
+
     //connects the game with the player
     public void addGamePlayer(GamePlayer gamePlayer){
         gamePlayer.setGame(this);

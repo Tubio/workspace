@@ -72,12 +72,21 @@ public class GamePlayer {
     public Score getScore() { return getPlayer().getScore(getGame()); }
 
     //setters
-    public void setPlayer(Player player) { this.player = player; }
+    public void setPlayer(Player player) {
+        this.player = player;
+        player.addGamePlayer(this);
+    }
     public void setGame(Game game) { this.game = game; }
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }
     public void setSalvoes(Set<Salvo> salvoes) { this.salvoes = salvoes; }
 
     //add
-    public void addShip (Ship newShip) { ships.add(newShip); }
-    public void addSalvo(Salvo newSalvo) { salvoes.add((newSalvo)); }
+    public void addShip ( Ship newShip ) {
+        ships.add(newShip);
+        newShip.setGamePlayer(this);
+    }
+    public void addShips ( List<Ship> ships ) {
+        ships.forEach(this::addShip);
+    }
+    public void addSalvo ( Salvo newSalvo ) { salvoes.add((newSalvo)); }
 }

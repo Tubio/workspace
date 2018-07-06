@@ -76,20 +76,17 @@ public class SalvoApplication {
 		Player player2 = new Player("c.obrian@ctu.gov");
 		Player player3 = new Player("kim_bauer@gmail.com");
 		Player player4 = new Player("t.almeida@ctu.gov");
-		Player playerX = new Player("N/A");
 
 		//adding passwords to players
 		player1.setPassword("24");
 		player2.setPassword("42");
 		player3.setPassword("kb");
 		player4.setPassword("mole");
-		playerX.setPassword("");
 
 		playerList.add(player1);
 		playerList.add(player2);
 		playerList.add(player3);
 		playerList.add(player4);
-		playerList.add(playerX);
 
 		return playerList;
 	}
@@ -158,9 +155,7 @@ public class SalvoApplication {
 		gamePlayerList.add( new GamePlayer(gameList.get(4), playerList.get(3)));
 		gamePlayerList.add( new GamePlayer(gameList.get(4), playerList.get(0)));
 		gamePlayerList.add( new GamePlayer(gameList.get(5), playerList.get(2)));
-		gamePlayerList.add( new GamePlayer(gameList.get(5),playerList.get(4)));
 		gamePlayerList.add( new GamePlayer(gameList.get(6), playerList.get(3)));
-		gamePlayerList.add( new GamePlayer(gameList.get(6),playerList.get(4)));
 		gamePlayerList.add( new GamePlayer(gameList.get(7), playerList.get(2)));
 		gamePlayerList.add( new GamePlayer(gameList.get(7), playerList.get(3)));
 
@@ -413,39 +408,11 @@ public class SalvoApplication {
 		shipList.get(20).setGamePlayer(gamePlayerList.get(9));
 		shipList.get(21).setGamePlayer(gamePlayerList.get(10));
 		shipList.get(22).setGamePlayer(gamePlayerList.get(10));
-		shipList.get(23).setGamePlayer(gamePlayerList.get(14));
-		shipList.get(24).setGamePlayer(gamePlayerList.get(14));
-		shipList.get(25).setGamePlayer(gamePlayerList.get(15));
-		shipList.get(26).setGamePlayer(gamePlayerList.get(15));
+		shipList.get(23).setGamePlayer(gamePlayerList.get(12));
+		shipList.get(24).setGamePlayer(gamePlayerList.get(12));
+		shipList.get(25).setGamePlayer(gamePlayerList.get(13));
+		shipList.get(26).setGamePlayer(gamePlayerList.get(13));
 
-
-		gamePlayerList.get(0).addShip(shipList.get(0));
-		gamePlayerList.get(0).addShip(shipList.get(1));
-		gamePlayerList.get(0).addShip(shipList.get(2));
-		gamePlayerList.get(1).addShip(shipList.get(3));
-		gamePlayerList.get(1).addShip(shipList.get(4));
-		gamePlayerList.get(2).addShip(shipList.get(5));
-		gamePlayerList.get(2).addShip(shipList.get(6));
-		gamePlayerList.get(3).addShip(shipList.get(7));
-		gamePlayerList.get(3).addShip(shipList.get(8));
-		gamePlayerList.get(4).addShip(shipList.get(9));
-		gamePlayerList.get(4).addShip(shipList.get(10));
-		gamePlayerList.get(5).addShip(shipList.get(11));
-		gamePlayerList.get(5).addShip(shipList.get(12));
-		gamePlayerList.get(6).addShip(shipList.get(13));
-		gamePlayerList.get(6).addShip(shipList.get(14));
-		gamePlayerList.get(7).addShip(shipList.get(15));
-		gamePlayerList.get(7).addShip(shipList.get(16));
-		gamePlayerList.get(8).addShip(shipList.get(17));
-		gamePlayerList.get(8).addShip(shipList.get(18));
-		gamePlayerList.get(9).addShip(shipList.get(19));
-		gamePlayerList.get(9).addShip(shipList.get(20));
-		gamePlayerList.get(10).addShip(shipList.get(21));
-		gamePlayerList.get(10).addShip(shipList.get(22));
-		gamePlayerList.get(14).addShip(shipList.get(23));
-		gamePlayerList.get(14).addShip(shipList.get(24));
-		gamePlayerList.get(15).addShip(shipList.get(25));
-		gamePlayerList.get(15).addShip(shipList.get(26));
 	}
 
 	private void connectGamePlayersAndSalvoes(List<GamePlayer> gamePlayerList, List<Salvo> salvoList) {
@@ -479,7 +446,10 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 		protected void configure(HttpSecurity http) throws Exception {
 			http.authorizeRequests()
 					.antMatchers("/rest/**").hasAuthority("ADMIN")
+					.antMatchers("/web/js/game.js").hasAuthority("USER")
+					.antMatchers("/web/game.html").hasAuthority("USER")
 					.antMatchers("/web/**").permitAll()
+					.antMatchers("/api/game_view/**").hasAuthority("USER")
 					.antMatchers("/api/**").permitAll()
 					.anyRequest().authenticated();
 
