@@ -339,30 +339,112 @@ public class SalvoApplication {
 
 		List<Salvo> salvoList = new ArrayList<>();
 
-		//creating salvoes
+		//creating salvoes and adding attributes
 		Salvo salvo1 = new Salvo();
-		Salvo salvo2 = new Salvo();
-		Salvo salvo3 = new Salvo();
-		Salvo salvo4 = new Salvo();
-		Salvo salvo5 = new Salvo();
-
-		//adding salvoes stats
-		salvo1.setLocations(new ArrayList<> (Arrays.asList("A1","A2","D4","D5","E6","C1")));
 		salvo1.setTurnNumber(1);
-		salvo2.setLocations(new ArrayList<> (Arrays.asList("C1","A2","B4","A5","B6","D1")));
-		salvo2.setTurnNumber(2);
-		salvo3.setLocations(new ArrayList<> (Arrays.asList("D1","E2","C4","F5","E6","E1")));
-		salvo3.setTurnNumber(1);
-		salvo4.setLocations(new ArrayList<> (Arrays.asList("E1","E2","D4","D5","F6","F1")));
-		salvo4.setTurnNumber(2);
-		salvo5.setLocations(new ArrayList<> (Arrays.asList("F1","F2","E4","E5","E6","C1")));
-		salvo5.setTurnNumber(3);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B5", "C5", "F1")));
+
+		Salvo salvo2 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B4", "B5", "B6")));
+
+		Salvo salvo3 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>Arrays.asList("F2", "D5"));
+
+		Salvo salvo4 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("E1", "H3", "A2")));
+
+		Salvo salvo5 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A2", "A4", "G6")));
+
+		Salvo salvo6 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B5", "D5", "C7")));
+
+		Salvo salvo7 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B5", "C5", "F1")));
+
+		Salvo salvo8 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A3", "H6")));
+
+		Salvo salvo9 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("G6", "H6", "A4")));
+
+		Salvo salvo10 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("H1", "H2", "H3")));
+
+		Salvo salvo11 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A2", "A3", "D8")));
+
+		Salvo salvo12 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("E1", "F2", "G3")));
+
+		Salvo salvo13 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A3", "A4", "F7")));
+
+		Salvo salvo14 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B5", "C6", "H1")));
+
+		Salvo salvo15 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A2", "G6", "H6")));
+
+		Salvo salvo16 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("C5", "C7", "D5")));
+
+		Salvo salvo17 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("A1", "A2", "A3")));
+
+		Salvo salvo18 = new Salvo();
+		salvo1.setTurnNumber(1);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("B5", "B6", "C7")));
+
+		Salvo salvo19 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("G6", "G7", "G8")));
+
+		Salvo salvo20 = new Salvo();
+		salvo1.setTurnNumber(2);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("C6", "D6", "E6")));
+
+		Salvo salvo21 = new Salvo();
+		salvo1.setTurnNumber(3);
+		salvo1.setLocations(new ArrayList<String>(Arrays.asList("H1", "H8")));
 
 		salvoList.add(salvo1);
 		salvoList.add(salvo2);
 		salvoList.add(salvo3);
 		salvoList.add(salvo4);
 		salvoList.add(salvo5);
+		salvoList.add(salvo6);
+		salvoList.add(salvo7);
+		salvoList.add(salvo8);
+		salvoList.add(salvo9);
+		salvoList.add(salvo10);
+		salvoList.add(salvo11);
+		salvoList.add(salvo12);
+		salvoList.add(salvo13);
+		salvoList.add(salvo14);
+		salvoList.add(salvo15);
+		salvoList.add(salvo16);
+		salvoList.add(salvo17);
+		salvoList.add(salvo18);
+		salvoList.add(salvo19);
+		salvoList.add(salvo20);
+		salvoList.add(salvo21);
 
 		return salvoList;
 	}
@@ -417,6 +499,27 @@ public class SalvoApplication {
 
 	private void connectGamePlayersAndSalvoes(List<GamePlayer> gamePlayerList, List<Salvo> salvoList) {
 
+		salvoList.get(0).setGamePlayer(gamePlayerList.get(0));
+		salvoList.get(1).setGamePlayer(gamePlayerList.get(1));
+		salvoList.get(2).setGamePlayer(gamePlayerList.get(0));
+		salvoList.get(3).setGamePlayer(gamePlayerList.get(1));
+		salvoList.get(4).setGamePlayer(gamePlayerList.get(2));
+		salvoList.get(5).setGamePlayer(gamePlayerList.get(3));
+		salvoList.get(6).setGamePlayer(gamePlayerList.get(2));
+		salvoList.get(7).setGamePlayer(gamePlayerList.get(3));
+		salvoList.get(8).setGamePlayer(gamePlayerList.get(4));
+		salvoList.get(9).setGamePlayer(gamePlayerList.get(5));
+		salvoList.get(10).setGamePlayer(gamePlayerList.get(4));
+		salvoList.get(11).setGamePlayer(gamePlayerList.get(5));
+		salvoList.get(12).setGamePlayer(gamePlayerList.get(6));
+		salvoList.get(13).setGamePlayer(gamePlayerList.get(7));
+		salvoList.get(14).setGamePlayer(gamePlayerList.get(6));
+		salvoList.get(15).setGamePlayer(gamePlayerList.get(7));
+		salvoList.get(16).setGamePlayer(gamePlayerList.get(8));
+		salvoList.get(17).setGamePlayer(gamePlayerList.get(9));
+		salvoList.get(18).setGamePlayer(gamePlayerList.get(8));
+		salvoList.get(19).setGamePlayer(gamePlayerList.get(9));
+		salvoList.get(20).setGamePlayer(gamePlayerList.get(8));
 
 	}
 }

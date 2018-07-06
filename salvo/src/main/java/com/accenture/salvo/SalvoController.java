@@ -52,7 +52,7 @@ public class SalvoController {
             requestMap = extractFrom(gamePlayerRepository.getOne(gamePlayerId));
             requestResponse = new ResponseEntity<>(requestMap, HttpStatus.ACCEPTED);
         } else {
-            requestMap = makeResponseMap("error","request unauthorized");
+            requestMap = makeResponseMap(Console.KEY_ERROR,"request unauthorized");
             requestResponse = new ResponseEntity<>(requestMap, HttpStatus.UNAUTHORIZED);
         }
         return requestResponse;
@@ -72,12 +72,12 @@ public class SalvoController {
 
         if (username.isEmpty()) { //checks empty
             responseEntity = new ResponseEntity<>(
-                    makeResponseMap("error", "No name"), HttpStatus.BAD_REQUEST);
+                    makeResponseMap(Console.KEY_ERROR, "No name"), HttpStatus.BAD_REQUEST);
         } else { //checks repeated
             Player player = playerRepository.findByUserName(username);
             if (player != null) {
                 responseEntity = new ResponseEntity<>(
-                        makeResponseMap("error", "Name in use"), HttpStatus.BAD_REQUEST);
+                        makeResponseMap(Console.KEY_ERROR, "Name in use"), HttpStatus.BAD_REQUEST);
             } else { //saves the new player
                 playerRepository.save(new Player(username, password));
                 responseEntity = new ResponseEntity<>(
@@ -95,7 +95,7 @@ public class SalvoController {
 
         if (isGuest(authentication)){ //a guest cannot create games. Response Forbidden
 
-            responseRequest = new ResponseEntity<>(makeResponseMap("error","request unauthorized"),HttpStatus.FORBIDDEN);
+            responseRequest = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.FORBIDDEN);
 
         }else{ //create game and gamePlayer. Response accepted
 
@@ -118,14 +118,15 @@ public class SalvoController {
     }
 
     @RequestMapping(path = "/game/{gameId}/players", method = RequestMethod.POST)
-    public ResponseEntity<Map<String,Object>> joinGame( @PathVariable long gameId,Authentication authentication ) {
+    public ResponseEntity<Map<String,Object>> joinGame( @PathVariable long gameId,
+                                                        Authentication authentication ) {
 
         ResponseEntity<Map<String,Object>> responseRequest;
         Map<String,Object> responseMap = new HashMap<>();
 
         if (isGuest(authentication)) { // guests cannot join games
 
-            responseMap = makeResponseMap("error","request unauthorized");
+            responseMap = makeResponseMap(Console.KEY_ERROR,"request unauthorized");
             responseRequest = new ResponseEntity<>(responseMap,HttpStatus.UNAUTHORIZED);
 
         }else { // game validation
@@ -134,22 +135,22 @@ public class SalvoController {
 
             if (requested == null) { //checks if game exists
 
-                responseMap.put("error", "request forbidden");
-                responseMap.put("reason", "no such game");
+                responseMap.put(Console.KEY_ERROR, "request forbidden");
+                responseMap.put(Console.KEY_REASON, "no such game");
 
                 responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
 
             }else if (requested.hasPlayer(authentication.getName())) {//checks if the player is already on the game
 
-                responseMap.put("error", "request forbidden");
-                responseMap.put("reason","already on game");
+                responseMap.put(Console.KEY_ERROR, "request forbidden");
+                responseMap.put(Console.KEY_REASON,"already on game");
 
                 responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
 
             }else if (requested.getPlayers().size() == 2){
 
-                responseMap.put("error", "request forbidden");
-                responseMap.put("reason","game is full");
+                responseMap.put(Console.KEY_ERROR, "request forbidden");
+                responseMap.put(Console.KEY_REASON,"game is full");
 
                 responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
 
@@ -171,6 +172,7 @@ public class SalvoController {
         return responseRequest;
     }
 
+
     @RequestMapping(path = "/games/players/{gamePlayerID}/ships", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> setShips(@PathVariable Long gamePlayerID,
                                                         @RequestBody List <Ship> ships, Authentication authentication) {
@@ -183,14 +185,14 @@ public class SalvoController {
         if( isGuest(authentication) || gamePlayer == null
                 || gamePlayer.getPlayer() != playerRepository.findByUserName(authentication.getName()) ) {
 
-            requestResponse = new ResponseEntity<>(makeResponseMap("error","request unauthorized"),HttpStatus.UNAUTHORIZED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
 
         }else {
 
             gamePlayer.addShips(ships);
             shipRepository.save(ships);
 
-            requestResponse = new ResponseEntity<>(makeResponseMap("created","data verified correctly"),HttpStatus.CREATED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_CREATED,"data verified correctly"),HttpStatus.CREATED);
 
         }
         return requestResponse;
