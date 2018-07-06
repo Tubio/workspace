@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.persistence.*;
 
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 
 
 @Entity
@@ -38,11 +39,18 @@ public class Game {
 
     @JsonIgnore
     public Set<Player> getPlayers() { return gamePlayers.stream().map(sub ->
-                                        sub.getPlayer()).collect(Collectors.toSet());}
+                                        sub.getPlayer()).collect(toSet());}
     @JsonIgnore
     public Set<GamePlayer> getGamePlayers() { return gamePlayers; }
 
     public Set<Score> getScores() { return scores; }
+
+    public Set<Salvo> getSalvoes() {
+        return
+            getGamePlayers().stream().map(gamePlayer -> gamePlayer.getSalvoes()).flatMap(list -> list.stream())
+                .collect(toSet());
+
+    }
 
     //setter
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }

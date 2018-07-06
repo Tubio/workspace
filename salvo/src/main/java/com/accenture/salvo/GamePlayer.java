@@ -85,8 +85,18 @@ public class GamePlayer {
         ships.add(newShip);
         newShip.setGamePlayer(this);
     }
+
     public void addShips ( List<Ship> ships ) {
         ships.forEach(this::addShip);
     }
-    public void addSalvo ( Salvo newSalvo ) { salvoes.add((newSalvo)); }
+
+    public void addSalvo ( Salvo newSalvo ) {
+        salvoes.add(newSalvo);
+        newSalvo.setGamePlayer(this);
+    }
+
+    public void addSalvoes ( List<Salvo> salvoes ) {
+        salvoes.forEach(this::addSalvo);
+    }
+
 }

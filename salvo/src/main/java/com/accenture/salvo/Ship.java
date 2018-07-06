@@ -33,9 +33,7 @@ public class Ship {
     public List<String> getLocations() { return locations; }
 
     //setters
-    public void setGamePlayer (GamePlayer gamePlayer) {
-        this.gamePlayer = gamePlayer;
-    }
+    public void setGamePlayer (GamePlayer gamePlayer) { this.gamePlayer = gamePlayer; }
     public void setLocations (List<String> locations) { this.locations = locations; }
     public void addLocation (String newLocation) { this.locations.add(newLocation); }
     //gets an array of locations and adds them to the bottom of the list

@@ -25,6 +25,8 @@ public class SalvoController {
     private PlayerRepository playerRepository;
     @Autowired
     private ShipRepository shipRepository;
+    @Autowired
+    private SalvoRepository salvoRepository;
 
     @RequestMapping("/games")
     public Map<String, Object> getAll(Authentication authentication) {
@@ -172,7 +174,6 @@ public class SalvoController {
         return responseRequest;
     }
 
-
     @RequestMapping(path = "/games/players/{gamePlayerID}/ships", method = RequestMethod.POST)
     public ResponseEntity<Map<String, Object>> setShips(@PathVariable Long gamePlayerID,
                                                         @RequestBody List <Ship> ships, Authentication authentication) {
@@ -180,10 +181,12 @@ public class SalvoController {
         ResponseEntity<Map<String,Object>> requestResponse;
         GamePlayer gamePlayer = gamePlayerRepository.getOne(gamePlayerID);
 
+        Player logged = playerRepository.findByUserName(authentication.getName());
+
 //        checks if the player is not logged in, is referencing a game that does not exist
 //        or is entering a game that he should not.
         if( isGuest(authentication) || gamePlayer == null
-                || gamePlayer.getPlayer() != playerRepository.findByUserName(authentication.getName()) ) {
+                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail()) ) {
 
             requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
 
@@ -191,6 +194,34 @@ public class SalvoController {
 
             gamePlayer.addShips(ships);
             shipRepository.save(ships);
+
+            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_CREATED,"data verified correctly"),HttpStatus.CREATED);
+
+        }
+        return requestResponse;
+    }
+
+    @RequestMapping(path = "/games/players/{gamePlayerID}/salvoes", method = RequestMethod.POST)
+    public ResponseEntity<Map<String, Object>> setSalvoes(@PathVariable Long gamePlayerID,
+                                                          @RequestBody Salvo salvo,
+                                                          Authentication authentication) {
+
+        ResponseEntity<Map<String,Object>> requestResponse;
+        GamePlayer gamePlayer = gamePlayerRepository.getOne(gamePlayerID);
+
+        Player logged = playerRepository.findByUserName(authentication.getName());
+
+//      checks if the player is not logged in, is referencing a game that does not exist
+//      or is entering a game that he should not.
+        if( isGuest(authentication) || gamePlayer == null
+                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail()) ) {
+
+            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
+
+        }else {
+
+            gamePlayer.addSalvo(salvo);
+            salvoRepository.save(salvo);
 
             requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_CREATED,"data verified correctly"),HttpStatus.CREATED);
 
@@ -209,9 +240,8 @@ public class SalvoController {
         gameInfo.put("gamePlayers", makeGamePlayerDTO(requested.getGame().getGamePlayers()));
         gameInfo.put("ships", makeShipDTO(requested.getShips()));
 
-        //me falta modularizar la funcion de abajo
-        gameInfo.put("salvoes", requested.getGame().getGamePlayers().stream().map
-                (gp -> gp.getSalvoes()).flatMap(list -> list.stream()).collect(toSet()));
+        //me falta modularizar la funcion de abajo!!!
+        gameInfo.put("salvoes", requested.getGame().getSalvoes().stream().map(this::makeSalvoDTO).collect(toSet()));
 
         return gameInfo;
     }
