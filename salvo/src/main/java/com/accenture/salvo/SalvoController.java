@@ -8,9 +8,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.sasl.Sasl;
 import javax.validation.constraints.Null;
+import javax.xml.stream.Location;
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 @RestController
@@ -205,16 +210,19 @@ public class SalvoController {
     public ResponseEntity<Map<String, Object>> setSalvoes(@PathVariable Long gamePlayerID,
                                                           @RequestBody Salvo salvo,
                                                           Authentication authentication) {
-
-        ResponseEntity<Map<String,Object>> requestResponse;
+        //local variables
+        ResponseEntity<Map<String, Object>> requestResponse;
         GamePlayer gamePlayer = gamePlayerRepository.getOne(gamePlayerID);
-
+        int turnNumber = gamePlayer.getSalvoes().size() +1;
         Player logged = playerRepository.findByUserName(authentication.getName());
+
+        salvo.setTurnNumber(turnNumber);
 
 //      checks if the player is not logged in, is referencing a game that does not exist
 //      or is entering a game that he should not.
-        if( isGuest(authentication) || gamePlayer == null
-                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail()) ) {
+
+        if(isGuest(authentication) || gamePlayer == null
+                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail())) {
 
             requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
 
@@ -237,11 +245,15 @@ public class SalvoController {
 
         gameInfo.put("id", requested.getGame().getId());
         gameInfo.put("created", requested.getGame().getCreationDate());
+
+        gameInfo.put("gameState",GameState.PLAY); // <------------------------------------
+
         gameInfo.put("gamePlayers", makeGamePlayerDTO(requested.getGame().getGamePlayers()));
         gameInfo.put("ships", makeShipDTO(requested.getShips()));
 
         //me falta modularizar la funcion de abajo!!!
         gameInfo.put("salvoes", requested.getGame().getSalvoes().stream().map(this::makeSalvoDTO).collect(toSet()));
+        gameInfo.put("hits",makeHitsDTO(requested));
 
         return gameInfo;
     }
@@ -335,6 +347,154 @@ public class SalvoController {
         leaderboardDTO.put("score", scoreDTO);
 
         return leaderboardDTO;
+    }
+
+    private Map<String,Object> makeHitsDTO(GamePlayer gamePlayer) {
+
+        int playerTotalDamage[] = new int[5];
+        int opponentTotalDamage[] = new int[5];
+        /* array positions:
+       0: carrier
+       1: battleship
+       2: submarine
+       3: destroyer
+       4: patrolboat
+       */
+        Map<String,Object> hitsMap = new HashMap<>();
+
+        Set<Ship> playerShips = gamePlayer.getShips();
+        Set<Ship> opponentShips = gamePlayer.findOponentGamePlayer().getShips();
+
+        Set<Salvo> playerSalvoes = gamePlayer.getSalvoes();
+        Set<Salvo> opponentSalvoes = gamePlayer.findOponentGamePlayer().getSalvoes();
+
+        //changed to List because Sets were not getting ordered (bug?)
+        List<Salvo> sortedPlayerSalvoes = playerSalvoes.stream().sorted(Comparator.comparing(Salvo::getTurnNumber)).collect(toList());
+        List<Salvo> sortedOpponentSalvoes = opponentSalvoes.stream().sorted(Comparator.comparing(Salvo::getTurnNumber)).collect(toList());
+
+        hitsMap.put("self", sortedOpponentSalvoes.stream().map(
+                salvo -> makeHitsDamageDTO(salvo,playerShips,playerTotalDamage)).collect(toSet()));
+        hitsMap.put("opponent", sortedPlayerSalvoes.stream().map(
+                salvo -> makeHitsDamageDTO(salvo,opponentShips,opponentTotalDamage)).collect(toSet()));
+
+        return hitsMap;
+    }
+
+    private Map<String,Object> makeHitsDamageDTO(Salvo salvo, Set<Ship> shipSet, int[] totalDamage) {
+
+        List<Ship> shipList = new ArrayList<>(shipSet);
+
+        Map<String,Object> hitsDamageDTO = new HashMap<>();
+
+        int turnDamage[] = new int[5];
+        int missed = 0;
+
+        for (int i = 0 ; i < salvo.getLocations().size() ; i++) {
+            //for each location
+
+            //linear search
+            Ship shipDamaged = findShipDamaged(salvo.getLocations().get(i),shipList);
+
+            if (shipDamaged != null) {
+
+                updateDamageVectors(shipDamaged, turnDamage, totalDamage);
+            }
+            else missed++;
+        }
+
+        hitsDamageDTO.put("turn",salvo.getTurnNumber());
+        hitsDamageDTO.put("hitLocations",salvo.getLocations());
+        hitsDamageDTO.put("damages",makeShipDamageDTO(turnDamage,totalDamage));
+        hitsDamageDTO.put("missed",missed);
+
+        return hitsDamageDTO;
+        
+    }
+
+    private Map<String,Object> makeShipDamageDTO(int[] turnDamage, int[] totalDamage) {
+
+        Map<String,Object> shipDamageMap = new HashMap<>();
+
+        shipDamageMap.put(Type.CARRIER+"Hits",turnDamage[0]);
+        shipDamageMap.put(Type.BATTLESHIP+"Hits",turnDamage[1]);
+        shipDamageMap.put(Type.SUBMARINE+"Hits",turnDamage[2]);
+        shipDamageMap.put(Type.DESTROYER+"Hits",turnDamage[3]);
+        shipDamageMap.put(Type.PATROL_BOAT+"Hits",turnDamage[4]);
+        shipDamageMap.put(Type.CARRIER,totalDamage[0]);
+        shipDamageMap.put(Type.BATTLESHIP,totalDamage[1]);
+        shipDamageMap.put(Type.SUBMARINE,totalDamage[2]);
+        shipDamageMap.put(Type.DESTROYER,totalDamage[3]);
+        shipDamageMap.put(Type.PATROL_BOAT,totalDamage[4]);
+
+        return shipDamageMap;
+    }
+
+    //pre: locationToFind and shipList not null
+    //post: returns a ship that contains a location to find in a list of ships, returns
+    //      null if it does not find a ship
+    private Ship findShipDamaged (String locationToFind , List<Ship> shipList) {
+
+        Ship damaged = null;
+
+        boolean found = false;
+        int shipCounter = 0;
+        int maxShipCounter = shipList.size();
+
+        int locationCounter = 0;
+        int maxLocationCounter;
+
+        while ( !found && (shipCounter < maxShipCounter)) {
+
+            Ship actualShip = shipList.get(shipCounter);
+            List<String> actualShipLocations = actualShip.getLocations();
+
+            maxLocationCounter = actualShipLocations.size();
+
+            locationCounter = 0;
+            while ( !found && (locationCounter < maxLocationCounter) ){
+
+                String actualLocation = actualShipLocations.get(locationCounter);
+
+                if ( locationToFind.equals(actualLocation) ){
+
+                    damaged = actualShip;
+                    found = true;
+
+                }
+                else locationCounter ++;
+            }
+
+            shipCounter++;
+
+        }
+
+        return damaged;
+    }
+
+    private void updateDamageVectors(Ship damaged, int[] turnDamage, int[] totalDamage) {
+
+        String type = damaged.getType();
+
+        if( type.equals(Type.CARRIER) ) {
+            turnDamage[0]++;
+            totalDamage[0]++;
+        }
+        else if ( type.equals(Type.BATTLESHIP) ) {
+            turnDamage[1]++;
+            totalDamage[1]++;
+        }
+        else if ( type.equals(Type.SUBMARINE) ) {
+            turnDamage[2]++;
+            totalDamage[2]++;
+        }
+        else if ( type.equals(Type.DESTROYER) ) {
+            turnDamage[3]++;
+            totalDamage[3]++;
+        }
+        else if ( type.equals(Type.PATROL_BOAT) ) {
+            turnDamage[4]++;
+            totalDamage[4]++;
+        }
     }
 
     //Private Security methods

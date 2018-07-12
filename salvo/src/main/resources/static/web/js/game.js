@@ -385,7 +385,7 @@ function makeSalvoJSON() {
         salvoPositions.push(salvo5cellID);
     }
     salvoObject = {
-        salvoLocations : salvoPositions
+        locations : salvoPositions
     }
 
     salvoJSON = JSON.stringify(salvoObject);

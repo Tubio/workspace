@@ -197,111 +197,111 @@ public class SalvoApplication {
 
 		//setting ship stats
 		String[] locations1 = {"H2","H3","H4"};
-		ship1.setType("Destroyer");
+		ship1.setType(Type.DESTROYER);
 		ship1.addLocations(locations1);
 
 		String[] locations2 = {"E1","F1","G1"};
-		ship2.setType("Submarine");
+		ship2.setType(Type.SUBMARINE);
 		ship2.addLocations(locations2);
 
 		String[] locations3 = {"B4","B5"};
-		ship3.setType("Patrol Boat");
+		ship3.setType(Type.PATROL_BOAT);
 		ship3.addLocations(locations3);
 
 		String[] locations4 = {"B5","C5","D5"};
-		ship4.setType("Destroyer");
+		ship4.setType(Type.DESTROYER);
 		ship4.addLocations(locations4);
 
 		String[] locations5 = {"F1","F2"};
-		ship5.setType("Patrol Boat");
+		ship5.setType(Type.PATROL_BOAT);
 		ship5.addLocations(locations5);
 
 		String[] locations6 = {"B5","C5","D5"};
-		ship6.setType("Destoyer");
+		ship6.setType(Type.DESTROYER);
 		ship6.addLocations(locations6);
 
 		String[] locations7 = {"C6","C7"};
-		ship7.setType("Patrol Boat");
+		ship7.setType(Type.PATROL_BOAT);
 		ship7.addLocations(locations7);
 
 		String[] locations8 = {"A2","A3","A4"};
-		ship8.setType("Submarine");
+		ship8.setType(Type.SUBMARINE);
 		ship8.addLocations(locations8);
 
 		String[] locations9 = {"G6","H6"};
-		ship9.setType("Patrol Boat");
+		ship9.setType(Type.PATROL_BOAT);
 		ship9.addLocations(locations9);
 
 		String[] locations10 = {"B5","C5","D5"};
-		ship10.setType("Destroyer");
+		ship10.setType(Type.DESTROYER);
 		ship10.addLocations(locations10);
 
 		String[] locations11 = {"C6","C7"};
-		ship11.setType("Patrol Boat");
+		ship11.setType(Type.PATROL_BOAT);
 		ship11.addLocations(locations11);
 
 		String[] locations12 = {"A2","A3","A4"};
-		ship12.setType("Submarine");
+		ship12.setType(Type.SUBMARINE);
 		ship12.addLocations(locations12);
 
 		String[] locations13 = {"G6","H6"};
-		ship13.setType("Patrol Boat");
+		ship13.setType(Type.PATROL_BOAT);
 		ship13.addLocations(locations13);
 
 		String[] locations14 = {"B5","C5","D5"};
-		ship14.setType("Destroyer");
+		ship14.setType(Type.DESTROYER);
 		ship14.addLocations(locations14);
 
 		String[] locations15 = {"C6","C7"};
-		ship15.setType("Patrol Boat");
+		ship15.setType(Type.PATROL_BOAT);
 		ship15.addLocations(locations15);
 
 		String[] locations16 = {"A2","A3","A4"};
-		ship16.setType("Submarine");
+		ship16.setType(Type.SUBMARINE);
 		ship16.addLocations(locations16);
 
 		String[] locations17 = {"G6","H6"};
-		ship17.setType("Patrol Boat");
+		ship17.setType(Type.PATROL_BOAT);
 		ship17.addLocations(locations17);
 
 		String[] locations18 = {"B5","C5","D5"};
-		ship18.setType("Destroyer");
+		ship18.setType(Type.DESTROYER);
 		ship18.addLocations(locations18);
 
 		String[] locations19 = {"C6","C7"};
-		ship19.setType("Patrol Boat");
+		ship19.setType(Type.PATROL_BOAT);
 		ship19.addLocations(locations19);
 
 		String[] locations20 = {"A2","A3","A4"};
-		ship20.setType("Submarine");
+		ship20.setType(Type.SUBMARINE);
 		ship20.addLocations(locations20);
 
 		String[] locations21 = {"G6","H6"};
-		ship21.setType("Patrol Boat");
+		ship21.setType(Type.PATROL_BOAT);
 		ship21.addLocations(locations21);
 
 		String[] locations22 = {"B5","C5","D5"};
-		ship22.setType("Destroyer");
+		ship22.setType(Type.DESTROYER);
 		ship22.addLocations(locations22);
 
 		String[] locations23 = {"C6","C7"};
-		ship23.setType("Patrol Boat");
+		ship23.setType(Type.PATROL_BOAT);
 		ship23.addLocations(locations23);
 
 		String[] locations24 = {"B5","C5","D5"};
-		ship24.setType("Destoyer");
+		ship24.setType(Type.DESTROYER);
 		ship24.addLocations(locations24);
 
 		String[] locations25 = {"C6","C7"};
-		ship25.setType("Patrol Boat");
+		ship25.setType(Type.PATROL_BOAT);
 		ship25.addLocations(locations25);
 
 		String[] locations26 = {"A2","A3","A4"};
-		ship26.setType("Submarine");
+		ship26.setType(Type.SUBMARINE);
 		ship26.addLocations(locations26);
 
 		String[] locations27 = {"G6","H6"};
-		ship27.setType("Patrol Boat");
+		ship27.setType(Type.PATROL_BOAT);
 		ship27.addLocations(locations27);
 
 		shipList.add(ship1);

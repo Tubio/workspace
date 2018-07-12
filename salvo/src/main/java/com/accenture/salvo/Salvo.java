@@ -19,7 +19,7 @@ public class Salvo {
     private int turnNumber;
 
     @ElementCollection
-    @Column(name = "locations")
+    @Column(name = "salvoLocations")
     private List<String> locations;
 
     //methods

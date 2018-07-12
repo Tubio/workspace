@@ -2,10 +2,7 @@ package com.accenture.salvo;
 
 import javax.persistence.*;
 import javax.validation.constraints.Null;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class GamePlayer {
@@ -97,6 +94,16 @@ public class GamePlayer {
 
     public void addSalvoes ( List<Salvo> salvoes ) {
         salvoes.forEach(this::addSalvo);
+    }
+
+    public GamePlayer findOponentGamePlayer() {
+        List<GamePlayer> gamePlayers = new ArrayList<>(game.getGamePlayers());
+        GamePlayer oponentGP = gamePlayers.get(0);
+
+        if ( oponentGP.player.getId() == this.player.getId() )
+            oponentGP = gamePlayers.get(1);
+
+        return oponentGP;
     }
 
 }
