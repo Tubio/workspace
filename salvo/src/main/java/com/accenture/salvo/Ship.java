@@ -42,5 +42,7 @@ public class Ship {
         locations.addAll(newListObject);
     }
     public void setType (String type) { this.type = type; }
+
+    public int countTotalLocations() { return locations.size(); }
 }
 

@@ -77,7 +77,8 @@ public class Player {
 
     //connects the game with the player
     public void addGamePlayer(GamePlayer gamePlayer) {
-        gamePlayer.setPlayer(this);
+        if (gamePlayer.getPlayer() == null)
+            gamePlayer.setPlayer(this);
         gamePlayers.add(gamePlayer);
     }
 

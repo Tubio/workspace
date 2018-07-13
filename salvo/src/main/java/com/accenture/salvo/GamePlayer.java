@@ -3,6 +3,7 @@ package com.accenture.salvo;
 import javax.persistence.*;
 import javax.validation.constraints.Null;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 public class GamePlayer {
@@ -24,6 +25,8 @@ public class GamePlayer {
 
     @OneToMany(mappedBy = "gamePlayer",fetch = FetchType.EAGER)
     private Set<Salvo> salvoes;
+
+    private GameState gameState;
 
     //constructor
     public GamePlayer() {
@@ -67,7 +70,10 @@ public class GamePlayer {
     public Set<Ship> getShips() { return ships; }
     public Set<Salvo> getSalvoes() { return salvoes; }
     public Score getScore() { return getPlayer().getScore(getGame()); }
-
+    public GameState getGameState() {
+        game.updateGameStates();
+        return gameState;
+    }
     //setters
     public void setPlayer(Player player) {
         this.player = player;
@@ -76,11 +82,12 @@ public class GamePlayer {
     public void setGame(Game game) { this.game = game; }
     public void setCreationDate(Date creationDate) { this.creationDate = creationDate; }
     public void setSalvoes(Set<Salvo> salvoes) { this.salvoes = salvoes; }
+    public void setGameState(GameState gameState) { this.gameState = gameState; }
 
     //add
     public void addShip ( Ship newShip ) {
-        ships.add(newShip);
         newShip.setGamePlayer(this);
+        ships.add(newShip);
     }
 
     public void addShips ( List<Ship> ships ) {
@@ -88,22 +95,97 @@ public class GamePlayer {
     }
 
     public void addSalvo ( Salvo newSalvo ) {
-        salvoes.add(newSalvo);
         newSalvo.setGamePlayer(this);
+        salvoes.add(newSalvo);
     }
 
     public void addSalvoes ( List<Salvo> salvoes ) {
         salvoes.forEach(this::addSalvo);
     }
 
-    public GamePlayer findOponentGamePlayer() {
-        List<GamePlayer> gamePlayers = new ArrayList<>(game.getGamePlayers());
-        GamePlayer oponentGP = gamePlayers.get(0);
+    public Boolean hasOpponent() {
 
-        if ( oponentGP.player.getId() == this.player.getId() )
-            oponentGP = gamePlayers.get(1);
+        Boolean hasOpponent = false;
 
-        return oponentGP;
+        if ( getGame().getPlayers().size() == 2)
+            hasOpponent = true;
+
+        return hasOpponent;
+    }
+    public GamePlayer findOpponentGamePlayer() {
+
+        GamePlayer opponentGP = null;
+
+        if (hasOpponent()) {
+            List<GamePlayer> gamePlayers = new ArrayList<>(game.getGamePlayers());
+
+            if ( gamePlayers.get(0).getId() != this.getPlayer().getId() ) {
+                opponentGP = gamePlayers.get(0);
+            }
+            else opponentGP = gamePlayers.get(1);
+        }
+
+        return opponentGP;
+    }
+
+    public int countTotalShipLocations() {
+
+        int totalShipLocationCounter = 0;
+        for ( Ship ship : ships ){
+            totalShipLocationCounter = totalShipLocationCounter +ship.countTotalLocations();
+        }
+
+        return totalShipLocationCounter;
+    }
+
+    public int countTotalSalvoLocations() {
+
+        int totalSalvoLocationCounter = 0;
+        for ( Salvo salvo : salvoes ){
+            totalSalvoLocationCounter = totalSalvoLocationCounter + salvo.countTotalLocations();
+        }
+
+        return totalSalvoLocationCounter;
+    }
+
+    public List<String> getHitsReceived() {
+
+        List<String> hitsReceivedLocations;
+
+        List<String> opponentSalvoLocations = new ArrayList<>();
+        List<String> shipLocations = new ArrayList<>();
+
+        for (Salvo salvo : findOpponentGamePlayer().getSalvoes())
+            opponentSalvoLocations.addAll(salvo.getLocations());
+
+        for (Ship ship : ships)
+            shipLocations.addAll(ship.getLocations());
+
+        hitsReceivedLocations = shipLocations.stream().filter(
+                opponentSalvoLocations::contains).collect(Collectors.toList());
+
+        return hitsReceivedLocations;
+
+    }
+
+    public List<String> getHits() {
+
+        List<String> hitLocations;
+
+        List<String> opponentShipLocations = new ArrayList<>();
+        List<String> salvoLocations = new ArrayList<>();
+
+        for (Salvo salvo : getSalvoes())
+            salvoLocations.addAll(salvo.getLocations());
+
+        for (Ship ship : findOpponentGamePlayer().getShips())
+            opponentShipLocations.addAll(ship.getLocations());
+
+        hitLocations = opponentShipLocations.stream().filter(
+                salvoLocations::contains).collect(Collectors.toList());
+
+        return hitLocations;
+
     }
 
 }

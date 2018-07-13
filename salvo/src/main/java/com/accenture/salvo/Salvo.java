@@ -47,4 +47,6 @@ public class Salvo {
     public void setLocations(List<String> locations) { this.locations = locations; }
 
     public void addLocation(String location) { this.locations.add(location); }
+
+    public int countTotalLocations() { return locations.size(); }
 }

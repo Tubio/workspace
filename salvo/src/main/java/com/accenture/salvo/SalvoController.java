@@ -5,15 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
-import javax.security.sasl.Sasl;
-import javax.validation.constraints.Null;
-import javax.xml.stream.Location;
-import java.net.URI;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -55,11 +49,21 @@ public class SalvoController {
         ResponseEntity<Map<String, Object>> requestResponse;
         Map<String, Object> requestMap;
 
-        if (authentication.getName().equals(playerRepository.getOne(gamePlayerId).getEmail())) {
-            requestMap = extractFrom(gamePlayerRepository.getOne(gamePlayerId));
+        GamePlayer requested = gamePlayerRepository.findById(gamePlayerId);
+
+        if ( requested == null) {
+
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_BADID),HttpStatus.BAD_REQUEST);
+        }
+
+        else if (authentication.getName().equals(requested.getPlayer().getEmail())) {
+
+            requestMap = extractFrom(requested);
             requestResponse = new ResponseEntity<>(requestMap, HttpStatus.ACCEPTED);
+
         } else {
-            requestMap = makeResponseMap(Console.KEY_ERROR,"request unauthorized");
+
+            requestMap = makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_UNAUTHORIZED);
             requestResponse = new ResponseEntity<>(requestMap, HttpStatus.UNAUTHORIZED);
         }
         return requestResponse;
@@ -79,12 +83,12 @@ public class SalvoController {
 
         if (username.isEmpty()) { //checks empty
             responseEntity = new ResponseEntity<>(
-                    makeResponseMap(Console.KEY_ERROR, "No name"), HttpStatus.BAD_REQUEST);
+                    makeResponseMap(AppMessage.KEY_ERROR, "No name"), HttpStatus.BAD_REQUEST);
         } else { //checks repeated
             Player player = playerRepository.findByUserName(username);
             if (player != null) {
                 responseEntity = new ResponseEntity<>(
-                        makeResponseMap(Console.KEY_ERROR, "Name in use"), HttpStatus.BAD_REQUEST);
+                        makeResponseMap(AppMessage.KEY_ERROR, "Name in use"), HttpStatus.BAD_REQUEST);
             } else { //saves the new player
                 playerRepository.save(new Player(username, password));
                 responseEntity = new ResponseEntity<>(
@@ -102,7 +106,7 @@ public class SalvoController {
 
         if (isGuest(authentication)){ //a guest cannot create games. Response Forbidden
 
-            responseRequest = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.FORBIDDEN);
+            responseRequest = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_UNAUTHORIZED),HttpStatus.FORBIDDEN);
 
         }else{ //create game and gamePlayer. Response accepted
 
@@ -133,7 +137,7 @@ public class SalvoController {
 
         if (isGuest(authentication)) { // guests cannot join games
 
-            responseMap = makeResponseMap(Console.KEY_ERROR,"request unauthorized");
+            responseMap = makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_UNAUTHORIZED);
             responseRequest = new ResponseEntity<>(responseMap,HttpStatus.UNAUTHORIZED);
 
         }else { // game validation
@@ -142,22 +146,19 @@ public class SalvoController {
 
             if (requested == null) { //checks if game exists
 
-                responseMap.put(Console.KEY_ERROR, "request forbidden");
-                responseMap.put(Console.KEY_REASON, "no such game");
+                responseMap.put(AppMessage.KEY_ERROR, AppMessage.BODYMSG_BADGAME);
 
-                responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
+                responseRequest = new ResponseEntity<>(responseMap, HttpStatus.BAD_REQUEST);
 
             }else if (requested.hasPlayer(authentication.getName())) {//checks if the player is already on the game
 
-                responseMap.put(Console.KEY_ERROR, "request forbidden");
-                responseMap.put(Console.KEY_REASON,"already on game");
+                responseMap.put(AppMessage.KEY_ERROR,AppMessage.BODYMSG_ALREADYJOINEDGAME);
 
                 responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
 
             }else if (requested.getPlayers().size() == 2){
 
-                responseMap.put(Console.KEY_ERROR, "request forbidden");
-                responseMap.put(Console.KEY_REASON,"game is full");
+                responseMap.put(AppMessage.KEY_ERROR,AppMessage.BODYMSG_FULLGAME);
 
                 responseRequest = new ResponseEntity<>(responseMap, HttpStatus.FORBIDDEN);
 
@@ -188,19 +189,22 @@ public class SalvoController {
 
         Player logged = playerRepository.findByUserName(authentication.getName());
 
+        if (gamePlayer == null) {
+
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_BADID),HttpStatus.BAD_REQUEST);
+        }
 //        checks if the player is not logged in, is referencing a game that does not exist
 //        or is entering a game that he should not.
-        if( isGuest(authentication) || gamePlayer == null
-                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail()) ) {
+        else if( isGuest(authentication) || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail()) ) {
 
-            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_UNAUTHORIZED),HttpStatus.UNAUTHORIZED);
 
         }else {
 
             gamePlayer.addShips(ships);
             shipRepository.save(ships);
 
-            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_CREATED,"data verified correctly"),HttpStatus.CREATED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_CREATED,AppMessage.BODYMSG_DATAVERIFIED),HttpStatus.CREATED);
 
         }
         return requestResponse;
@@ -218,20 +222,23 @@ public class SalvoController {
 
         salvo.setTurnNumber(turnNumber);
 
+        if (gamePlayer == null) {
+
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_BADID),HttpStatus.BAD_REQUEST);
+        }
+
 //      checks if the player is not logged in, is referencing a game that does not exist
 //      or is entering a game that he should not.
+        else if(isGuest(authentication) || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail())) {
 
-        if(isGuest(authentication) || gamePlayer == null
-                || ! gamePlayer.getPlayer().getEmail().equals(logged.getEmail())) {
-
-            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_ERROR,"request unauthorized"),HttpStatus.UNAUTHORIZED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_UNAUTHORIZED),HttpStatus.UNAUTHORIZED);
 
         }else {
 
             gamePlayer.addSalvo(salvo);
             salvoRepository.save(salvo);
 
-            requestResponse = new ResponseEntity<>(makeResponseMap(Console.KEY_CREATED,"data verified correctly"),HttpStatus.CREATED);
+            requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_CREATED,AppMessage.BODYMSG_DATAVERIFIED),HttpStatus.CREATED);
 
         }
         return requestResponse;
@@ -246,12 +253,11 @@ public class SalvoController {
         gameInfo.put("id", requested.getGame().getId());
         gameInfo.put("created", requested.getGame().getCreationDate());
 
-        gameInfo.put("gameState",GameState.PLAY); // <------------------------------------
+//        gameInfo.put("gameState",GameState.PLAY); // <------------------------------------
 
+        gameInfo.put("gameState", requested.getGameState());
         gameInfo.put("gamePlayers", makeGamePlayerDTO(requested.getGame().getGamePlayers()));
         gameInfo.put("ships", makeShipDTO(requested.getShips()));
-
-        //me falta modularizar la funcion de abajo!!!
         gameInfo.put("salvoes", requested.getGame().getSalvoes().stream().map(this::makeSalvoDTO).collect(toSet()));
         gameInfo.put("hits",makeHitsDTO(requested));
 
@@ -350,9 +356,6 @@ public class SalvoController {
     }
 
     private Map<String,Object> makeHitsDTO(GamePlayer gamePlayer) {
-
-        int playerTotalDamage[] = new int[5];
-        int opponentTotalDamage[] = new int[5];
         /* array positions:
        0: carrier
        1: battleship
@@ -360,13 +363,31 @@ public class SalvoController {
        3: destroyer
        4: patrolboat
        */
+
+        int playerTotalDamage[] = new int[5];
+        Set<Ship> playerShips;
+        Set<Salvo> playerSalvoes;
+
+        int opponentTotalDamage[] = new int[5];
+        Set<Ship> opponentShips;
+        Set<Salvo> opponentSalvoes;
+
         Map<String,Object> hitsMap = new HashMap<>();
 
-        Set<Ship> playerShips = gamePlayer.getShips();
-        Set<Ship> opponentShips = gamePlayer.findOponentGamePlayer().getShips();
+        playerShips = gamePlayer.getShips();
+        playerSalvoes = gamePlayer.getSalvoes();
 
-        Set<Salvo> playerSalvoes = gamePlayer.getSalvoes();
-        Set<Salvo> opponentSalvoes = gamePlayer.findOponentGamePlayer().getSalvoes();
+        if ( gamePlayer.getGame().getPlayers().size() == 1 ) {
+
+            opponentShips = Collections.emptySet();
+            opponentSalvoes = Collections.emptySet();
+
+        }else {
+
+            opponentShips = gamePlayer.findOpponentGamePlayer().getShips();
+            opponentSalvoes = gamePlayer.findOpponentGamePlayer().getSalvoes();
+
+        }
 
         //changed to List because Sets were not getting ordered (bug?)
         List<Salvo> sortedPlayerSalvoes = playerSalvoes.stream().sorted(Comparator.comparing(Salvo::getTurnNumber)).collect(toList());
@@ -496,6 +517,7 @@ public class SalvoController {
             totalDamage[4]++;
         }
     }
+
 
     //Private Security methods
 

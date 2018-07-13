@@ -582,6 +582,7 @@ class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 			// if logout is successful, just send a success response
 			http.logout().logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
 
+			http.headers().frameOptions().disable();
 		}
 
 		private void clearAuthenticationAttributes(HttpServletRequest request) {
