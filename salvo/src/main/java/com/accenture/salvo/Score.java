@@ -31,6 +31,13 @@ public class Score {
         finishDate = new Date();
     }
 
+    public Score(double score, Game game){
+
+        finishDate = new Date();
+        this.score = score;
+        this.game = game;
+    }
+
     //GETTERS
     public Long getId() { return id; }
 

@@ -34,6 +34,7 @@ public class GamePlayer {
         ships = new HashSet<>();
         salvoes = new HashSet<>();
         creationDate = new Date();
+        gameState = GameState.UNDEFINED;
     }
 
     public GamePlayer(Game game,Player player) {
@@ -43,24 +44,8 @@ public class GamePlayer {
         creationDate = new Date();
         this.game = game;
         this.player = player;
+        gameState = GameState.UNDEFINED;
     }
-
-    public GamePlayer(Game game){ //DO NOT USE, PROGRAM CRASHES, TODO: FIX
-
-        ships = new HashSet<>();
-        salvoes = new HashSet<>();
-        creationDate = new Date();
-        this.game = game;
-
-        //creating a player called N/A for when the class recives only a game parameter
-        player = new Player("N/A");
-
-    }
-
-    /*public void GamePlayer(Player player , Game game) { //not working
-        this.player = player;
-        this.game = game;
-    }*/
 
     //getters
     public Long getId() { return id; }
@@ -70,9 +55,9 @@ public class GamePlayer {
     public Set<Ship> getShips() { return ships; }
     public Set<Salvo> getSalvoes() { return salvoes; }
     public Score getScore() { return getPlayer().getScore(getGame()); }
-    public GameState getGameState() {
-        game.updateGameStates();
-        return gameState;
+    public GameState getGameState() { return gameState; }
+    public GameState getUpdatedGameState() {
+        return updateGameState();
     }
     //setters
     public void setPlayer(Player player) {
@@ -119,10 +104,10 @@ public class GamePlayer {
         if (hasOpponent()) {
             List<GamePlayer> gamePlayers = new ArrayList<>(game.getGamePlayers());
 
-            if ( gamePlayers.get(0).getId() != this.getPlayer().getId() ) {
-                opponentGP = gamePlayers.get(0);
+            if ( gamePlayers.get(0).getId().equals(this.getId()) ) {
+                opponentGP = gamePlayers.get(1);
             }
-            else opponentGP = gamePlayers.get(1);
+            else opponentGP = gamePlayers.get(0);
         }
 
         return opponentGP;
@@ -186,6 +171,99 @@ public class GamePlayer {
 
         return hitLocations;
 
+    }
+
+    public GameState updateGameState() {
+
+        GameState updated;
+
+        if (hasOpponent()){
+            updated = updateForTwoPlayers();
+        }
+        else{
+            updated = updateForOnePlayer();
+        }
+        return updated;
+    }
+
+    private GameState updateForOnePlayer() {
+
+        GameState updated;
+
+        if (ships.isEmpty()) {
+            updated = GameState.PLACESHIPS;
+        }
+        else {
+            updated = GameState.WAITINGFOROPP;
+        }
+
+        return updated;
+    }
+
+    private GameState updateForTwoPlayers() {
+
+        GameState updated;
+        GamePlayer opponentGP = findOpponentGamePlayer();
+
+        //game being setup
+        if (ships.isEmpty()) {
+            updated = GameState.PLACESHIPS;
+        }
+        else if (opponentGP.getShips().isEmpty()) {
+            updated = GameState.WAITINGFOROPP;
+        }
+        else {
+            updated = updateForFullGame(opponentGP);
+        }
+
+        return updated;
+    }
+
+    private GameState updateForFullGame(GamePlayer opponentGP) {
+
+        GameState updated;
+
+        if (salvoes.size() < opponentGP.salvoes.size()) {
+            updated = GameState.PLAY;
+        }
+        else if (salvoes.size() > opponentGP.salvoes.size()) {
+            updated = GameState.WAIT;
+        }
+        else {
+            updated = updateTurn(opponentGP); //gets called every turn to validate win conditions
+        }
+
+        return updated;
+    }
+
+    private GameState updateTurn(GamePlayer opponentGP) {
+
+        GameState updated;
+        List<String> hits = getHits();
+        List <String> opponentHits = getHitsReceived();
+        int totalShipLocations = countTotalShipLocations();
+
+        if (hits.size() < totalShipLocations && opponentHits.size() < totalShipLocations)
+            updated = GameState.PLAY;
+        else {
+            boolean shipsDestroyed = (opponentHits.size() == totalShipLocations);
+            boolean opponentShipsDestroyed = (hits.size() == totalShipLocations);
+
+            Score finishedGame = new Score();
+
+            if (shipsDestroyed && opponentShipsDestroyed) {
+                updated = GameState.TIE;
+            }
+            else if (shipsDestroyed) {
+                updated = GameState.LOST;
+            }
+            else if (opponentShipsDestroyed) {
+                updated = GameState.WON;
+            }
+            else updated = GameState.PLAY;
+        }
+
+        return updated;
     }
 
 }

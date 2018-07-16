@@ -57,7 +57,7 @@ public class SalvoApplication {
 			gameList.get(0).addScore(scoreList.get(0));
 			gameList.get(0).addScore(scoreList.get(1));
 			playerList.get(0).addScore(scoreList.get(0));
-			playerList.get(0).addScore(scoreList.get(1));
+			playerList.get(1).addScore(scoreList.get(1));
 			scoreRepository.save(scoreList.get(0));
 			scoreRepository.save(scoreList.get(1));
 

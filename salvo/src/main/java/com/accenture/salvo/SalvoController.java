@@ -26,6 +26,8 @@ public class SalvoController {
     private ShipRepository shipRepository;
     @Autowired
     private SalvoRepository salvoRepository;
+    @Autowired
+    private ScoreRepository scoreRepository;
 
     @RequestMapping("/games")
     public Map<String, Object> getAll(Authentication authentication) {
@@ -252,10 +254,7 @@ public class SalvoController {
 
         gameInfo.put("id", requested.getGame().getId());
         gameInfo.put("created", requested.getGame().getCreationDate());
-
-//        gameInfo.put("gameState",GameState.PLAY); // <------------------------------------
-
-        gameInfo.put("gameState", requested.getGameState());
+        gameInfo.put("gameState", processGameState(requested));
         gameInfo.put("gamePlayers", makeGamePlayerDTO(requested.getGame().getGamePlayers()));
         gameInfo.put("ships", makeShipDTO(requested.getShips()));
         gameInfo.put("salvoes", requested.getGame().getSalvoes().stream().map(this::makeSalvoDTO).collect(toSet()));
@@ -270,8 +269,8 @@ public class SalvoController {
 
         map.put("id", game.getId());
         map.put("created", game.getCreationDate());
-        map.put("gamePlayers", game.getGamePlayers().stream().map(gp -> makeGamePlayerDTO(gp)).collect(toSet()));
-        map.put("scores", game.getScores().stream().map(score -> makeScoreDTO(score)).collect(toSet()));
+        map.put("gamePlayers", game.getGamePlayers().stream().map(this::makeGamePlayerDTO).collect(toSet()));
+        map.put("scores", game.getScores().stream().map(this::makeScoreDTO).collect(toSet()));
         return map;
     }
 
@@ -531,5 +530,39 @@ public class SalvoController {
         responseMap.put(key, value);
 
         return responseMap;
+    }
+
+    private GameState processGameState (GamePlayer requested) {
+
+        GameState updated = requested.updateGameState();
+
+        if (      (requested.getGameState().equals(GameState.WON)
+                || requested.getGameState().equals(GameState.LOST)
+                || requested.getGameState().equals(GameState.TIE))) {
+
+            updated = requested.getGameState();
+        }
+        else if (updated.equals(GameState.WON) || updated.equals(GameState.TIE)
+                || updated.equals(GameState.WON)){
+            Score finishedGameScore = new Score();
+
+            finishedGameScore.setPlayer(requested.getPlayer());
+            finishedGameScore.setGame(requested.getGame());
+
+            if (updated.equals(GameState.WON)){
+                finishedGameScore.setScore(1.0);
+                requested.setGameState(GameState.WON);
+            }
+            else if (updated.equals(GameState.TIE)){
+                finishedGameScore.setScore(0.5);
+                requested.setGameState(GameState.TIE);
+            }
+            else if (updated.equals(GameState.LOST)){
+                finishedGameScore.setScore(0.0); //LOST
+                requested.setGameState(GameState.LOST);
+            }
+            scoreRepository.save(finishedGameScore);
+        }
+        return updated;
     }
 }
