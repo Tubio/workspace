@@ -1,7 +1,6 @@
 package com.accenture.salvo;
 
 import javax.persistence.*;
-import javax.validation.constraints.Null;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -230,13 +229,13 @@ public class GamePlayer {
             updated = GameState.WAIT;
         }
         else {
-            updated = updateTurn(opponentGP); //gets called every turn to validate win conditions
+            updated = updateTurn(); //gets called every turn to validate win conditions
         }
 
         return updated;
     }
 
-    private GameState updateTurn(GamePlayer opponentGP) {
+    private GameState updateTurn() {
 
         GameState updated;
         List<String> hits = getHits();
@@ -248,8 +247,6 @@ public class GamePlayer {
         else {
             boolean shipsDestroyed = (opponentHits.size() == totalShipLocations);
             boolean opponentShipsDestroyed = (hits.size() == totalShipLocations);
-
-            Score finishedGame = new Score();
 
             if (shipsDestroyed && opponentShipsDestroyed) {
                 updated = GameState.TIE;

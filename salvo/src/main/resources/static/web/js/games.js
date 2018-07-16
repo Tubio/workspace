@@ -166,7 +166,7 @@ function updateView() {
             $('#login-form').show("slow");
 
         } else {
-            $('#currentPlayer').text(data.player.name);
+            $('#currentPlayer').text(data.player.email);
             $('#login-form').hide("slow");
             $('#logout-form').show("slow");
 

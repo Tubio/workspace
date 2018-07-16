@@ -35,10 +35,10 @@ public class SalvoController {
         Map<String, Object> gameMap = new LinkedHashMap<>();
 
         if (isGuest(authentication))
-            gameMap.put("player", "Guest");
-        else
-            gameMap.put("player", makePlayerDTO(playerRepository.findByUserName(authentication.getName())));
-
+            gameMap.put(KeyName.PLAYER, "Guest");
+        else {
+            gameMap.put(KeyName.PLAYER, makePlayerDTO(playerRepository.findByUserName(authentication.getName())));
+        }
         gameMap.put("games", gameRepository.findAll().stream().map(this::makeGameDTO).collect(toSet()));
 
         return gameMap;
@@ -75,7 +75,7 @@ public class SalvoController {
     public Set<Map<String, Object>> getLeaderboard() {
 
         List<Player> playerList = playerRepository.findAll();
-        return playerList.stream().map(player -> makeLeaderboardDTO(player)).collect(toSet());
+        return playerList.stream().map(this::makeLeaderboardDTO).collect(toSet());
     }
 
     @RequestMapping(path = "/players", method = RequestMethod.POST)
@@ -224,7 +224,7 @@ public class SalvoController {
 
         salvo.setTurnNumber(turnNumber);
 
-        if (gamePlayer == null) {
+        if (logged == null) {
 
             requestResponse = new ResponseEntity<>(makeResponseMap(AppMessage.KEY_ERROR,AppMessage.BODYMSG_BADID),HttpStatus.BAD_REQUEST);
         }
@@ -286,10 +286,7 @@ public class SalvoController {
 
     private Set<Map<String, Object>> makeGamePlayerDTO(Set<GamePlayer> gamePlayerSet) {
 
-        Set<Map<String, Object>> gamePlayerMap = new HashSet<>();
-        gamePlayerMap = gamePlayerSet.stream().map(gp -> makeGamePlayerDTO(gp)).collect(toSet());
-
-        return gamePlayerMap;
+       return gamePlayerSet.stream().map(this::makeGamePlayerDTO).collect(toSet());
     }
 
     private Map<String, Object> makePlayerDTO(Player player) {
@@ -312,10 +309,7 @@ public class SalvoController {
 
     private Set<Map<String, Object>> makeShipDTO(Set<Ship> shipSet) {
 
-        Set<Map<String, Object>> shipMap = new HashSet<>();
-        shipMap = shipSet.stream().map(ship -> makeShipDTO(ship)).collect(toSet());
-
-        return shipMap;
+        return shipSet.stream().map(this::makeShipDTO).collect(toSet());
     }
 
     private Map<String, Object> makeSalvoDTO(Salvo salvo) {
@@ -363,11 +357,11 @@ public class SalvoController {
        4: patrolboat
        */
 
-        int playerTotalDamage[] = new int[5];
+        int[] playerTotalDamage = new int[5];
         Set<Ship> playerShips;
         Set<Salvo> playerSalvoes;
 
-        int opponentTotalDamage[] = new int[5];
+        int[] opponentTotalDamage = new int[5];
         Set<Ship> opponentShips;
         Set<Salvo> opponentSalvoes;
 
@@ -406,7 +400,7 @@ public class SalvoController {
 
         Map<String,Object> hitsDamageDTO = new HashMap<>();
 
-        int turnDamage[] = new int[5];
+        int[] turnDamage = new int[5];
         int missed = 0;
 
         for (int i = 0 ; i < salvo.getLocations().size() ; i++) {
@@ -460,7 +454,7 @@ public class SalvoController {
         int shipCounter = 0;
         int maxShipCounter = shipList.size();
 
-        int locationCounter = 0;
+        int locationCounter;
         int maxLocationCounter;
 
         while ( !found && (shipCounter < maxShipCounter)) {
@@ -543,7 +537,7 @@ public class SalvoController {
             updated = requested.getGameState();
         }
         else if (updated.equals(GameState.WON) || updated.equals(GameState.TIE)
-                || updated.equals(GameState.WON)){
+                || updated.equals(GameState.LOST)){
             Score finishedGameScore = new Score();
 
             finishedGameScore.setPlayer(requested.getPlayer());
