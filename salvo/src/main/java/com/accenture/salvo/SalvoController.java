@@ -417,7 +417,7 @@ public class SalvoController {
         }
 
         hitsDamageDTO.put("turn",salvo.getTurnNumber());
-        hitsDamageDTO.put("hitLocations",salvo.getLocations());
+        hitsDamageDTO.put("hitLocations",salvo.getGamePlayer().getHits());
         hitsDamageDTO.put("damages",makeShipDamageDTO(turnDamage,totalDamage));
         hitsDamageDTO.put("missed",missed);
 
